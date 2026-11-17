@@ -13,6 +13,9 @@ target/
 # PDF files
 *.pdf
 
+# Internal context documentation (not for public repo)
+CONTEXT.md
+
 # Secrets and sensitive files
 *.pem
 *.key
