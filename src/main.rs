@@ -1,6 +1,6 @@
 //! Post-Quantum VPN Client
 //!
-//! Establishes a strictly hybrid TLS connection. IP tunneling is not yet implemented.
+//! Loopback SOCKS5 proxy over strictly hybrid TLS. IP tunneling is not yet implemented.
 //!
 //! Post-quantum security comes from TLS 1.3 itself: the default rustls backend
 //! offers the hybrid key exchange X25519MLKEM768 (X25519 + ML-KEM-768) first.
@@ -13,7 +13,7 @@
 //! vpn-client --port 1080 --server-domain vpn.example.com --server-cert server.pem
 //! ```
 
-mod transport;
+use vpn_client::{socks5, transport};
 
 use std::path::{Path, PathBuf};
 
@@ -26,7 +26,7 @@ use rustls::{
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
-/// Post-quantum TLS client (IP tunneling is not yet implemented)
+/// SOCKS5 proxy over hybrid TLS (IP tunneling is not yet implemented)
 #[derive(Parser, Debug)]
 struct CliArgs {
     /// SOCKS5 proxy port to listen on for incoming connections.
@@ -94,10 +94,7 @@ async fn main() -> Result<()> {
     info!("SOCKS5 proxy port: {}", args.port);
 
     let config = transport::client_config(load_roots(args.server_cert.as_deref())?)?;
-    let stream = transport::connect(args.server_domain, args.server_port, config).await?;
-    let session = stream.get_ref().1;
-    info!(version = ?session.protocol_version(), group = ?session.negotiated_key_exchange_group().map(|g| g.name()), "Hybrid TLS connection established; IP tunneling is not yet implemented");
-    Ok(())
+    socks5::listen(args.port, args.server_domain, args.server_port, config).await
 }
 
 #[cfg(test)]
