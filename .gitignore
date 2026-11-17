@@ -1,1 +1,30 @@
+# Rust build artifacts
 target/
+**/target/
+.cargo-lock
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# PDF files
+*.pdf
+
+# Secrets and sensitive files
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+.env
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
